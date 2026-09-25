@@ -1,0 +1,44 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}
+    Информация об аккаунте
+{% endblock title %}
+
+{% block body %}
+    <h1>Расскажите о себе</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">
+            Сохранить
+        </button>
+    </form>
+
+    <script>
+        const timezone =
+            Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        const timezoneInput =
+            document.querySelector("#id_timezone");
+
+        if (timezoneInput) {
+            timezoneInput.value = timezone;
+        }
+    </script>
+
+{% endblock body %}
+
+<script>
+    const timezoneInput =
+        document.getElementById("id_timezone");
+
+    if (timezoneInput) {
+        timezoneInput.value =
+            Intl.DateTimeFormat()
+                .resolvedOptions()
+                .timeZone;
+    }
+</script>

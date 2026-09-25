@@ -1,0 +1,283 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}
+    Мой аккаунт
+{% endblock title %}
+
+{% block body %}
+    <div class="account-page">
+        <div class="account-header">
+            <h1 class="account-title">
+                Аккаунт
+            </h1>
+        </div>
+
+
+        <section class="account-main-card">
+            <div class="account-avatar-column">
+                {% if user.profile.avatar %}
+                    <img
+                        src="{{ user.profile.avatar.url }}"
+                        alt="Фото профиля"
+                        class="profile-avatar"
+                    >
+                {% else %}
+                    <div class="avatar-placeholder">
+                        Нет фото
+                    </div>
+                {% endif %}
+            </div>
+
+
+            <div class="account-info">
+                <h2>
+                    {{ user.profile.display_name|default:user.username }}
+                </h2>
+
+                <dl class="profile-details">
+                    <div>
+                        <dt>Дата рождения</dt>
+                        <dd>
+                            {% if user.profile.birth_date %}
+                                {{ user.profile.birth_date|date:"d.m.Y" }}
+                            {% else %}
+                                Не указана
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt>Город</dt>
+                        <dd>
+                            {{ user.profile.city|default:"Не указан" }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt>Знак зодиака</dt>
+                        <dd>
+                            {{ user.profile.get_zodiac_sign_display|default:"Не указан" }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt>О себе</dt>
+                        <dd>
+                            {{ user.profile.bio|default:"Информация не добавлена" }}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+
+            <div class="partner-card">
+                <h2>
+                    Пара
+                </h2>
+
+                {% if partner %}
+                    <div class="partner-row">
+                        <a
+                            href="{% url 'accounts:user-profile' partner.id %}"
+                            class="partner-link"
+                        >
+                            {% if partner.profile.avatar %}
+                                <img
+                                    src="{{ partner.profile.avatar.url }}"
+                                    alt="Фото партнёра"
+                                    class="partner-avatar"
+                                >
+                            {% else %}
+                                <span
+                                    class="partner-avatar-placeholder"
+                                >
+                                    Нет фото
+                                </span>
+                            {% endif %}
+
+                            <span class="partner-name">
+                                {{ partner.profile.display_name|default:partner.username }}
+                            </span>
+                        </a>
+
+                        <form
+                            method="post"
+                            action="{% url 'couples:delete-couple' %}"
+                            id="delete-couple-form"
+                        >
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="partner_id"
+                                value="{{ partner.id }}"
+                            >
+
+                            <button
+                                type="button"
+                                class="delete-button partner-delete-button"
+                                id="open-delete-couple-dialog"
+                            >
+                                Разорвать связь
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <p class="empty-text">
+                        Партнёр не найден. Вы можете привязать партнера в настройках.
+                    </p>
+                {% endif %}
+            </div>
+        </section>
+
+
+        <section class="answers-section">
+            <div class="section-heading">
+                <h2>
+                    Мои ответы
+                </h2>
+
+                {% if user.id == 1 %}
+                    <a href="{% url 'questions:question-create' %}"class="delete-button partner-delete-button">Создать новый вопрос(только Админ)</a>
+                {% endif %}
+            </div>
+
+            {% if answered_questions %}
+                <div class="answers-list">
+                    {% for answer in answered_questions %}
+                        <article class="answer-card">
+                            <p class="answer-question-label">
+                                Вопрос
+                            </p>
+
+                            <p class="answer-question">
+                                {{ answer.question.text }}
+                            </p>
+
+                            <p class="answer-text-label">
+                                Мой ответ
+                            </p>
+
+                            <p class="answer-text">
+                                {{ answer.text }}
+                            </p>
+
+                            <time
+                                class="answer-date"
+                                datetime="{{ answer.answer_date|date:'Y-m-d' }}"
+                            >
+                                {{ answer.answer_date|date:"d.m.Y" }}
+                            </time>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-text">
+                    Вы пока не ответили ни на один вопрос.
+                </p>
+            {% endif %}
+        </section>
+    </div>
+
+    <dialog
+        id="delete-couple-dialog"
+        class="confirm-dialog"
+    >
+        <div class="confirm-dialog-content">
+            <div class="confirm-dialog-icon">
+                !
+            </div>
+
+            <h2>
+                Разорвать связь?
+            </h2>
+
+            <p>
+                Вы действительно хотите разорвать связь
+                с партнёром?
+            </p>
+
+            <div class="confirm-dialog-actions">
+                <button
+                    type="button"
+                    class="button button-secondary"
+                    id="cancel-delete-couple"
+                >
+                    Отмена
+                </button>
+
+                <button
+                    type="button"
+                    class="button button-danger"
+                    id="confirm-delete-couple"
+                >
+                    Разорвать связь
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        const deleteCoupleDialog =
+            document.querySelector(
+                "#delete-couple-dialog"
+            );
+
+        const openDeleteCoupleButton =
+            document.querySelector(
+                "#open-delete-couple-dialog"
+            );
+
+        const cancelDeleteCoupleButton =
+            document.querySelector(
+                "#cancel-delete-couple"
+            );
+
+        const confirmDeleteCoupleButton =
+            document.querySelector(
+                "#confirm-delete-couple"
+            );
+
+        const deleteCoupleForm =
+            document.querySelector(
+                "#delete-couple-form"
+            );
+
+
+        openDeleteCoupleButton.addEventListener(
+            "click",
+            () => {
+                deleteCoupleDialog.showModal();
+            }
+        );
+
+
+        cancelDeleteCoupleButton.addEventListener(
+            "click",
+            () => {
+                deleteCoupleDialog.close();
+            }
+        );
+
+
+        confirmDeleteCoupleButton.addEventListener(
+            "click",
+            () => {
+                deleteCoupleForm.submit();
+            }
+        );
+
+
+        deleteCoupleDialog.addEventListener(
+            "click",
+            (event) => {
+                if (
+                    event.target === deleteCoupleDialog
+                ) {
+                    deleteCoupleDialog.close();
+                }
+            }
+        );
+    </script>
+
+{% endblock body %}

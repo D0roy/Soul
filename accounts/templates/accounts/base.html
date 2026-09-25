@@ -1,0 +1,105 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+            Приложение Soul
+        {% endblock title %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}?v=5"
+    >
+</head>
+
+
+<body>
+    <header class="site-header">
+        <div class="page-container site-header-inner">
+            <a
+                href="{% url 'accounts:about-me' %}"
+                class="brand"
+                aria-label="Soul"
+            >
+                <img
+                    src="{% static 'images/icon.jpg' %}"
+                    alt="Soul"
+                    class="brand-logo"
+                >
+            </a>
+
+            {% if user.is_authenticated %}
+                <nav
+                    class="site-navigation"
+                    aria-label="Основная навигация"
+                >
+                    <a
+                        href="{% url 'accounts:notifications' %}"
+                        class="notification-icon-link"
+                        title="Уведомления"
+                        aria-label="Уведомления"
+                    >
+                        <img
+                            src="{% static 'images/notification.png' %}"
+                            alt="Уведомления"
+                            class="notification-icon"
+                        >
+
+                        {% if unread_notifications_count %}
+                            <span
+                                class="notification-count"
+                            >
+                                {{ unread_notifications_count }}
+                            </span>
+                        {% endif %}
+                    </a>
+
+                    <a
+                        href="{% url 'accounts:settings' %}"
+                        class="settings-icon-link"
+                        title="Настройки"
+                        aria-label="Настройки"
+                    >
+                        <img
+                            src="{% static 'images/settings.png' %}"
+                            alt="Настройки"
+                            class="settings-icon"
+                        >
+                    </a>
+
+                    <form
+                        method="post"
+                        action="{% url 'accounts:logout' %}"
+                    >
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="header-button header-button-logout"
+                        >
+                            Выйти
+                        </button>
+                    </form>
+                </nav>
+            {% endif %}
+        </div>
+    </header>
+
+
+    <main class="page-container">
+        {% block body %}
+        {% endblock body %}
+    </main>
+</body>
+</html>

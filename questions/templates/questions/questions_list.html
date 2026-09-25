@@ -1,0 +1,54 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+    Сохранённые вопросы
+{% endblock title %}
+
+{% block body %}
+    <h1>Сохранённые вопросы</h1>
+
+    <p>
+        <a
+            href="{% url 'questions:question-create' %}"
+            class="button"
+        >
+            Добавить вопрос
+        </a>
+    </p>
+
+    {% regroup questions by category as category_groups %}
+
+    {% for group in category_groups %}
+        <section class="question-category">
+            <h2>
+                {{ group.grouper.name }}
+            </h2>
+
+            <ul>
+                {% for question in group.list %}
+                    <li>
+                        {{ question.text }}
+
+                        {% if question.is_active %}
+                            <span>
+                                Активен
+                            </span>
+                        {% else %}
+                            <span>
+                                Неактивен
+                            </span>
+                        {% endif %}
+
+                        {% if question.can_repeat %}
+                            <span>
+                                Можно повторять
+                            </span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% empty %}
+        <p>Вопросов пока нет.</p>
+    {% endfor %}
+{% endblock body %}

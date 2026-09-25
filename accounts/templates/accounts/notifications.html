@@ -1,0 +1,931 @@
+{% extends "accounts/base.html" %}
+{% load tz %}
+
+
+{% block title %}
+    Уведомления
+{% endblock title %}
+
+
+{% block body %}
+    <div class="notifications-page">
+        <div class="notifications-header">
+            <a
+                href="{% url 'accounts:about-me' %}"
+                class="button button-secondary"
+            >
+                Назад
+            </a>
+
+
+            <h1>
+                Уведомления
+            </h1>
+
+
+            <div
+                class="notification-tabs"
+                role="tablist"
+                aria-label="Тип уведомлений"
+            >
+                <button
+                    type="button"
+                    id="questions-tab"
+                    class="notification-tab is-active"
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="questions-panel"
+                >
+                    Вопросы
+                </button>
+
+
+                <button
+                    type="button"
+                    id="invites-tab"
+                    class="notification-tab"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="invites-panel"
+                >
+                    Приглашения
+                </button>
+            </div>
+        </div>
+
+
+        <section
+            id="questions-panel"
+            class="notifications-section notification-panel"
+            role="tabpanel"
+            aria-labelledby="questions-tab"
+        >
+            {% if question_notifications %}
+                <div class="notifications-list">
+                    {% for notification in question_notifications %}
+                        <article
+                            class="notification-card"
+                            id="notification-{{ notification.id }}"
+                        >
+                            <div
+                                class="notification-card-header"
+                            >
+                                <span
+                                    class="notification-badge"
+                                >
+                                    Новый вопрос
+                                </span>
+
+
+                                <time>
+                                    {{ notification.created_at|localtime|date:"d.m.Y H:i" }}
+                                </time>
+                            </div>
+
+
+                            <p
+                                class="notification-question"
+                            >
+                                {{ notification.question.text }}
+                            </p>
+
+
+                            <button
+                                type="button"
+                                class="button answer-question-button"
+                                data-question-id="{{ notification.question_id }}"
+                                data-answer-url="{% url 'questions:question' notification.question_id %}"
+                            >
+                                Ответить
+                            </button>
+
+
+                            <template
+                                class="question-text-template"
+                            >
+                                {{ notification.question.text }}
+                            </template>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-card">
+                    <p>
+                        Вопросов пока нет.
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+
+
+        <section
+            id="invites-panel"
+            class="notifications-section notification-panel"
+            role="tabpanel"
+            aria-labelledby="invites-tab"
+            hidden
+        >
+            {% if invites %}
+                <div class="notifications-list">
+                    {% for invite in invites %}
+                        <article
+                            class="notification-card"
+                            id="invite-{{ invite.id }}"
+                        >
+                            {% if invite.recipient_id == user.id %}
+                                <div
+                                    class="notification-card-header"
+                                >
+                                    <span
+                                        class="notification-badge"
+                                    >
+                                        Приглашение в пару
+                                    </span>
+
+
+                                    <time>
+                                        {{ invite.created_at|localtime|date:"d.m.Y H:i" }}
+                                    </time>
+                                </div>
+
+
+                                <p>
+                                    Пользователь
+                                    <strong>
+                                        {{ invite.sender.username }}
+                                    </strong>
+                                    отправил вам приглашение.
+                                </p>
+
+
+                                {% if invite.status == "pending" %}
+                                    <form
+                                        class="invite-answer-form notification-actions"
+                                        method="post"
+                                        action="{% url 'couples:invite-answer' invite.id %}"
+                                    >
+                                        {% csrf_token %}
+
+
+                                        <button
+                                            type="submit"
+                                            name="answer"
+                                            value="True"
+                                            class="button"
+                                        >
+                                            Принять
+                                        </button>
+
+
+                                        <button
+                                            type="submit"
+                                            name="answer"
+                                            value="False"
+                                            class="button button-danger"
+                                        >
+                                            Отклонить
+                                        </button>
+                                    </form>
+
+
+                                    <p
+                                        class="invite-answer-message notification-message"
+                                        hidden
+                                    ></p>
+
+
+                                {% elif invite.status == "accepted" %}
+                                    <p
+                                        class="notification-success"
+                                    >
+                                        Вы приняли это приглашение.
+                                    </p>
+
+
+                                {% elif invite.status == "rejected" %}
+                                    <p
+                                        class="notification-muted"
+                                    >
+                                        Вы отклонили это приглашение.
+                                    </p>
+                                {% endif %}
+
+
+                            {% else %}
+                                <div
+                                    class="notification-card-header"
+                                >
+                                    <span
+                                        class="notification-badge"
+                                    >
+                                        Отправленное приглашение
+                                    </span>
+
+
+                                    <time>
+                                        {{ invite.created_at|localtime|date:"d.m.Y H:i" }}
+                                    </time>
+                                </div>
+
+
+                                <p>
+                                    Вы отправили приглашение пользователю
+                                    <strong>
+                                        {{ invite.recipient.username }}
+                                    </strong>.
+                                </p>
+
+
+                                {% if invite.status == "pending" %}
+                                    <form
+                                        method="post"
+                                        action="{% url 'couples:delete-invite' invite.id %}"
+                                        class="notification-actions"
+                                    >
+                                        {% csrf_token %}
+
+
+                                        <button
+                                            type="submit"
+                                            class="button button-danger cancel-invite-button"
+                                        >
+                                            Отменить приглашение
+                                        </button>
+                                    </form>
+
+
+                                {% elif invite.status == "accepted" %}
+                                    <p
+                                        class="notification-success"
+                                    >
+                                        Приглашение принято.
+                                    </p>
+
+
+                                {% elif invite.status == "rejected" %}
+                                    <p
+                                        class="notification-muted"
+                                    >
+                                        Приглашение отклонено.
+                                    </p>
+                                {% endif %}
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-card">
+                    <p>
+                        Приглашений пока нет.
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+
+
+    <dialog
+        id="answer-dialog"
+        class="answer-dialog"
+    >
+        <div class="answer-sheet">
+            <div class="answer-sheet-header">
+                <div>
+                    <p class="answer-sheet-label">
+                        Вопрос
+                    </p>
+
+
+                    <h2>
+                        Ответить
+                    </h2>
+                </div>
+
+
+                <button
+                    type="button"
+                    class="dialog-close-button"
+                    id="close-answer-dialog"
+                    aria-label="Закрыть"
+                >
+                    ×
+                </button>
+            </div>
+
+
+            <p
+                id="answer-dialog-question"
+                class="answer-dialog-question"
+            ></p>
+
+
+            <form
+                id="answer-dialog-form"
+                method="post"
+            >
+                {% csrf_token %}
+
+
+                <label
+                    for="answer-text"
+                    class="answer-field-label"
+                >
+                    Ваш ответ
+                </label>
+
+
+                <textarea
+                    id="answer-text"
+                    name="text"
+                    rows="6"
+                    required
+                    placeholder="Напишите свой ответ..."
+                ></textarea>
+
+
+                <div class="answer-dialog-actions">
+                    <button
+                        type="button"
+                        class="button button-secondary"
+                        id="cancel-answer-dialog"
+                    >
+                        Отмена
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="button"
+                    >
+                        Сохранить ответ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+
+    <dialog
+        id="replace-couple-dialog"
+        class="confirm-dialog"
+    >
+        <div class="confirm-dialog-content">
+            <div class="confirm-dialog-icon">
+                !
+            </div>
+
+
+            <h2>
+                Заменить связь?
+            </h2>
+
+
+            <p
+                id="replace-couple-message"
+            >
+                У вас уже есть связь с другим пользователем.
+                Если продолжить, текущая связь будет заменена.
+            </p>
+
+
+            <div class="confirm-dialog-actions">
+                <button
+                    type="button"
+                    id="cancel-replace-couple"
+                    class="button button-secondary"
+                >
+                    Отмена
+                </button>
+
+
+                <button
+                    type="button"
+                    id="confirm-replace-couple"
+                    class="button button-danger"
+                >
+                    Заменить связь
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+
+    <script>
+        /*
+         * Окно ответа на вопрос
+         */
+
+        const answerDialog =
+            document.querySelector(
+                "#answer-dialog"
+            );
+
+        const answerDialogQuestion =
+            document.querySelector(
+                "#answer-dialog-question"
+            );
+
+        const answerDialogForm =
+            document.querySelector(
+                "#answer-dialog-form"
+            );
+
+        const answerText =
+            document.querySelector(
+                "#answer-text"
+            );
+
+        const closeAnswerDialogButton =
+            document.querySelector(
+                "#close-answer-dialog"
+            );
+
+        const cancelAnswerDialogButton =
+            document.querySelector(
+                "#cancel-answer-dialog"
+            );
+
+
+        document
+            .querySelectorAll(
+                ".answer-question-button"
+            )
+            .forEach((button) => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        const card =
+                            button.closest(
+                                ".notification-card"
+                            );
+
+                        const questionTemplate =
+                            card.querySelector(
+                                ".question-text-template"
+                            );
+
+                        const questionText =
+                            questionTemplate.content
+                                .textContent
+                                .trim();
+
+                        const answerUrl =
+                            button.dataset.answerUrl;
+
+                        answerDialogQuestion.textContent =
+                            questionText;
+
+                        answerDialogForm.action =
+                            answerUrl;
+
+                        answerText.value =
+                            "";
+
+                        answerDialog.showModal();
+
+                        answerText.focus();
+                    }
+                );
+            });
+
+
+        function closeAnswerDialog() {
+            answerDialog.close();
+        }
+
+
+        closeAnswerDialogButton.addEventListener(
+            "click",
+            closeAnswerDialog
+        );
+
+
+        cancelAnswerDialogButton.addEventListener(
+            "click",
+            closeAnswerDialog
+        );
+
+
+        answerDialog.addEventListener(
+            "click",
+            (event) => {
+                if (
+                    event.target === answerDialog
+                ) {
+                    closeAnswerDialog();
+                }
+            }
+        );
+
+
+        /*
+         * Вкладки уведомлений
+         */
+
+        const notificationTabs =
+            document.querySelectorAll(
+                ".notification-tab"
+            );
+
+        const notificationPanels =
+            document.querySelectorAll(
+                ".notification-panel"
+            );
+
+
+        notificationTabs.forEach((tab) => {
+            tab.addEventListener(
+                "click",
+                () => {
+                    const selectedPanelId =
+                        tab.getAttribute(
+                            "aria-controls"
+                        );
+
+                    notificationTabs.forEach(
+                        (currentTab) => {
+                            const isSelected =
+                                currentTab === tab;
+
+                            currentTab.classList.toggle(
+                                "is-active",
+                                isSelected
+                            );
+
+                            currentTab.setAttribute(
+                                "aria-selected",
+                                String(isSelected)
+                            );
+                        }
+                    );
+
+                    notificationPanels.forEach(
+                        (panel) => {
+                            panel.hidden =
+                                panel.id
+                                !== selectedPanelId;
+                        }
+                    );
+                }
+            );
+        });
+
+
+        /*
+         * Собственное окно замены связи
+         */
+
+        const replaceCoupleDialog =
+            document.querySelector(
+                "#replace-couple-dialog"
+            );
+
+        const replaceCoupleMessage =
+            document.querySelector(
+                "#replace-couple-message"
+            );
+
+        const cancelReplaceCoupleButton =
+            document.querySelector(
+                "#cancel-replace-couple"
+            );
+
+        const confirmReplaceCoupleButton =
+            document.querySelector(
+                "#confirm-replace-couple"
+            );
+
+        let pendingInviteRequest =
+            null;
+
+
+        function resetReplaceDialog() {
+            pendingInviteRequest =
+                null;
+
+            confirmReplaceCoupleButton.disabled =
+                false;
+
+            confirmReplaceCoupleButton.textContent =
+                "Заменить связь";
+        }
+
+
+        function closeReplaceCoupleDialog() {
+            if (
+                replaceCoupleDialog.open
+            ) {
+                replaceCoupleDialog.close();
+            }
+
+            resetReplaceDialog();
+        }
+
+
+        cancelReplaceCoupleButton.addEventListener(
+            "click",
+            closeReplaceCoupleDialog
+        );
+
+
+        replaceCoupleDialog.addEventListener(
+            "click",
+            (event) => {
+                if (
+                    event.target ===
+                    replaceCoupleDialog
+                ) {
+                    closeReplaceCoupleDialog();
+                }
+            }
+        );
+
+
+        confirmReplaceCoupleButton.addEventListener(
+            "click",
+            async () => {
+                if (
+                    !pendingInviteRequest
+                ) {
+                    return;
+                }
+
+                const request =
+                    pendingInviteRequest;
+
+                request.formData.set(
+                    "confirm_replace",
+                    "1"
+                );
+
+                confirmReplaceCoupleButton.disabled =
+                    true;
+
+                confirmReplaceCoupleButton.textContent =
+                    "Замена...";
+
+                await sendInviteAnswer(
+                    request.form,
+                    request.formData,
+                    request.buttons,
+                    request.message,
+                    true
+                );
+            }
+        );
+
+
+        /*
+         * Принятие и отклонение приглашений
+         */
+
+        document
+            .querySelectorAll(
+                ".invite-answer-form"
+            )
+            .forEach((form) => {
+                form.addEventListener(
+                    "submit",
+                    async (event) => {
+                        event.preventDefault();
+
+                        const clickedButton =
+                            event.submitter;
+
+                        const buttons =
+                            form.querySelectorAll(
+                                "button"
+                            );
+
+                        const message =
+                            form.nextElementSibling;
+
+                        const formData =
+                            new FormData(form);
+
+                        formData.set(
+                            "answer",
+                            clickedButton.value
+                        );
+
+                        buttons.forEach(
+                            (button) => {
+                                button.disabled =
+                                    true;
+                            }
+                        );
+
+                        await sendInviteAnswer(
+                            form,
+                            formData,
+                            buttons,
+                            message
+                        );
+                    }
+                );
+            });
+
+
+        async function sendInviteAnswer(
+            form,
+            formData,
+            buttons,
+            message,
+            isReplacementRequest = false
+        ) {
+            try {
+                const response =
+                    await fetch(
+                        form.action,
+                        {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                "X-Requested-With":
+                                    "XMLHttpRequest",
+                            },
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    data.confirm_required
+                    && !isReplacementRequest
+                ) {
+                    pendingInviteRequest = {
+                        form,
+                        formData,
+                        buttons,
+                        message,
+                    };
+
+                    replaceCoupleMessage.textContent =
+                        data.message
+                        || (
+                            "У вас уже есть связь с другим "
+                            + "пользователем. Если продолжить, "
+                            + "текущая связь будет заменена."
+                        );
+
+                    replaceCoupleDialog.showModal();
+
+                    return;
+                }
+
+
+                if (
+                    !response.ok
+                    || !data.success
+                ) {
+                    throw new Error(
+                        data.message
+                        || "Не удалось обработать приглашение."
+                    );
+                }
+
+
+                closeReplaceCoupleDialog();
+
+                form.hidden =
+                    true;
+
+                message.textContent =
+                    data.message;
+
+                message.hidden =
+                    false;
+            } catch (error) {
+                closeReplaceCoupleDialog();
+
+                message.textContent =
+                    error.message;
+
+                message.hidden =
+                    false;
+
+                buttons.forEach(
+                    (button) => {
+                        button.disabled =
+                            false;
+                    }
+                );
+            }
+        }
+
+
+        /*
+         * Свое окно отмены отправленного приглашения
+         */
+
+        const cancelInviteDialog =
+            document.querySelector(
+                "#cancel-invite-dialog"
+            );
+
+        const cancelInviteMessage =
+            document.querySelector(
+                "#cancel-invite-message"
+            );
+
+        const cancelInviteConfirmButton =
+            document.querySelector(
+                "#confirm-cancel-invite"
+            );
+
+        const cancelInviteCancelButton =
+            document.querySelector(
+                "#cancel-cancel-invite"
+            );
+
+        let pendingCancelInviteForm =
+            null;
+
+
+        function closeCancelInviteDialog() {
+            if (
+                cancelInviteDialog.open
+            ) {
+                cancelInviteDialog.close();
+            }
+
+            pendingCancelInviteForm =
+                null;
+
+            cancelInviteConfirmButton.disabled =
+                false;
+
+            cancelInviteConfirmButton.textContent =
+                "Отменить приглашение";
+        }
+
+
+        document
+            .querySelectorAll(
+                ".cancel-invite-button"
+            )
+            .forEach((button) => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        pendingCancelInviteForm =
+                            button.closest(
+                                "form"
+                            );
+
+                        const card =
+                            button.closest(
+                                ".notification-card"
+                            );
+
+                        const recipient =
+                            card.querySelector(
+                                "strong"
+                            );
+
+                        cancelInviteMessage.textContent =
+                            "Вы действительно хотите "
+                            + "отменить приглашение пользователю "
+                            + recipient.textContent.trim()
+                            + "?";
+
+                        cancelInviteDialog.showModal();
+                    }
+                );
+            });
+
+
+        cancelInviteCancelButton.addEventListener(
+            "click",
+            closeCancelInviteDialog
+        );
+
+
+        cancelInviteDialog.addEventListener(
+            "click",
+            (event) => {
+                if (
+                    event.target ===
+                    cancelInviteDialog
+                ) {
+                    closeCancelInviteDialog();
+                }
+            }
+        );
+
+
+        cancelInviteConfirmButton.addEventListener(
+            "click",
+            () => {
+                if (
+                    pendingCancelInviteForm
+                ) {
+                    pendingCancelInviteForm.submit();
+                }
+            }
+        );
+    </script>
+{% endblock body %}

@@ -1,0 +1,74 @@
+{% extends "accounts/base.html" %}
+
+
+{% block title %}
+    Регистрация
+{% endblock title %}
+
+
+{% block body %}
+    <div class="auth-page">
+        <section class="auth-card">
+            <div class="auth-card-header">
+                <h1>
+                    Регистрация
+                </h1>
+
+                <p>
+                    Создайте аккаунт, чтобы пользоваться Soul.
+                </p>
+            </div>
+
+
+            <form
+                method="post"
+                class="auth-form"
+            >
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-error">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="auth-field">
+                        {{ field.label_tag }}
+
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <small class="form-help">
+                                {{ field.help_text }}
+                            </small>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <p class="field-error">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <button
+                    type="submit"
+                    class="button auth-submit"
+                >
+                    Зарегистрироваться
+                </button>
+            </form>
+
+
+            <p class="auth-footer">
+                Уже есть аккаунт?
+                <a
+                    href="{% url 'accounts:login' %}"
+                >
+                    Войти
+                </a>
+            </p>
+        </section>
+    </div>
+{% endblock body %}

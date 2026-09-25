@@ -1,0 +1,150 @@
+{% extends "accounts/base.html" %}
+{% load tz %}
+
+
+{% block title %}
+    Профиль пользователя
+{% endblock title %}
+
+
+{% block body %}
+    <div class="profile-page">
+        <div class="profile-page-header">
+            <a
+                href="{% url 'accounts:about-me' %}"
+                class="button button-secondary"
+            >
+                Назад
+            </a>
+
+            <h1>
+                Профиль пользователя
+            </h1>
+        </div>
+
+
+        <section class="profile-main-card">
+            <div class="profile-avatar-column">
+                {% if profile_user.profile.avatar %}
+                    <img
+                        src="{{ profile_user.profile.avatar.url }}"
+                        alt="Фото профиля"
+                        class="profile-avatar"
+                    >
+                {% else %}
+                    <div class="avatar-placeholder">
+                        Нет фото
+                    </div>
+                {% endif %}
+            </div>
+
+
+            <div class="profile-info">
+                <h2>
+                    {{ profile_user.profile.display_name|default:profile_user.username }}
+                </h2>
+
+                <dl class="profile-details">
+                    <div>
+                        <dt>Дата рождения</dt>
+                        <dd>
+                            {% if user.profile.birth_date %}
+                                {{ user.profile.birth_date|date:"d.m.Y" }}
+                            {% else %}
+                                Не указана
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt>Город</dt>
+                        <dd>
+                            {{ profile_user.profile.city|default:"Не указан" }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt>Знак зодиака</dt>
+                        <dd>
+                            {{ profile_user.profile.get_zodiac_sign_display|default:"Не указан" }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt>О себе</dt>
+                        <dd>
+                            {{ profile_user.profile.bio|default:"Информация не добавлена" }}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+
+            <div class="profile-connection-card">
+                <h2>
+                    Пара
+                </h2>
+
+                <div class="connection-status">
+                    <span
+                        class="connection-status-icon"
+                        aria-hidden="true"
+                    >
+                        ♥
+                    </span>
+
+                    <p>
+                        Вы связаны с этим пользователем.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="profile-answers-section">
+            <div class="section-heading">
+                <h2>
+                    Ответы пользователя
+                </h2>
+            </div>
+
+            {% if answered_questions %}
+                <div class="answers-list">
+                    {% for answer in answered_questions %}
+                        <article class="answer-card">
+                            <p class="answer-question-label">
+                                Вопрос
+                            </p>
+
+                            <p class="answer-question">
+                                {{ answer.question.text }}
+                            </p>
+
+                            <p class="answer-text-label">
+                                Ответ
+                            </p>
+
+                            <p class="answer-text">
+                                {{ answer.text }}
+                            </p>
+
+                            <time
+                                class="answer-date"
+                                datetime="{{ answer.answer_date|date:'Y-m-d' }}"
+                            >
+                                {{ answer.answer_date|date:"d.m.Y" }}
+                            </time>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-card">
+                    <p>
+                        Пользователь пока не ответил
+                        ни на один вопрос.
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+{% endblock body %}

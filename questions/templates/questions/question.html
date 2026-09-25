@@ -1,0 +1,29 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+    Вопрос
+{% endblock title %}
+
+{% block body %}
+    <h1>Вопрос</h1>
+
+    {% if question %}
+        <p>
+            {{ question.text }}
+        </p>
+
+        <form method="post" action="{% url 'questions:question' question.id %}">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button type="submit">
+                Ответить
+            </button>
+        </form>
+    {% else %}
+        <p>
+            Подходящих вопросов пока нет.
+        </p>
+    {% endif %}
+{% endblock body %}

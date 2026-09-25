@@ -1,0 +1,34 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+    Добавить вопрос
+{% endblock title %}
+
+{% block body %}
+    <h1>Добавить вопрос</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="button">
+            Сохранить вопрос
+        </button>
+    </form>
+
+    <p>
+        <a
+            href="{% url 'questions:category-create' %}"
+            class="button"
+        >
+            Добавить категорию
+        </a>
+    </p>
+    <p>
+        <a href="{% url 'questions:question-list' %}"
+        class="button"
+        >Список вопросов
+    </a>
+    </p>
+{% endblock body %}

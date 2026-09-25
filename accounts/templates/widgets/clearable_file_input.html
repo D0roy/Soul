@@ -1,0 +1,34 @@
+{% if widget.is_initial %}
+    <div class="current-file">
+        <span class="current-file-label">
+            Текущее фото уже загружено
+        </span>
+
+        {% if not widget.required %}
+            <label class="clear-file-label">
+                <input
+                    type="checkbox"
+                    name="{{ widget.checkbox_name }}"
+                    id="{{ widget.checkbox_id }}"
+                >
+
+                Удалить фото
+            </label>
+        {% endif %}
+    </div>
+{% endif %}
+
+<div class="new-file">
+    <label
+        for="{{ widget.attrs.id }}"
+        class="new-file-label"
+    >
+        Выбрать новое фото
+    </label>
+
+    <input
+        type="{{ widget.type }}"
+        name="{{ widget.name }}"
+        {% include "django/forms/widgets/attrs.html" %}
+>
+</div>

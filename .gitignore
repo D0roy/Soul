@@ -1,0 +1,43 @@
+# Виртуальное окружение
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# База данных
+db.sqlite3
+db.sqlite3-journal
+
+# Celery Beat
+celerybeat-schedule
+celerybeat-schedule-shm
+celerybeat-schedule-wal
+
+# Пользовательские файлы
+media/
+
+# Django и временные файлы
+*.log
+staticfiles/
+
+# Секреты
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# Тесты и кэш
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Windows/macOS
+Thumbs.db
+.DS_Store

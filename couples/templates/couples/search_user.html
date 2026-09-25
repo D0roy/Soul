@@ -1,0 +1,419 @@
+{% extends "accounts/base.html" %}
+
+
+{% block title %}
+    Привязать пользователя
+{% endblock title %}
+
+
+{% block body %}
+    <div class="connect-page">
+        <section class="connect-card">
+            <a
+                href="{% url 'accounts:settings' %}"
+                class="button button-secondary back-button"
+            >
+                ← Назад
+            </a>
+
+
+            <div class="connect-header">
+                <h1>
+                    Отправьте приглашение
+                </h1>
+
+                <p>
+                    Найдите пользователя по имени и отправьте ему
+                    приглашение в пару.
+                </p>
+            </div>
+
+
+            <div class="user-search-box">
+                <label
+                    for="user-search"
+                    class="search-label"
+                >
+                    Поиск пользователя
+                </label>
+
+                <input
+                    type="search"
+                    id="user-search"
+                    class="user-search-input"
+                    placeholder="Введите имя пользователя"
+                    autocomplete="off"
+                >
+            </div>
+
+
+            <div
+                id="search-results"
+                class="search-results"
+            ></div>
+        </section>
+    </div>
+
+
+    <script>
+        function getCookie(name) {
+            const cookies =
+                document.cookie.split(";");
+
+            for (const cookie of cookies) {
+                const value = cookie.trim();
+
+                if (
+                    value.startsWith(
+                        name + "="
+                    )
+                ) {
+                    return decodeURIComponent(
+                        value.substring(
+                            name.length + 1
+                        )
+                    );
+                }
+            }
+
+            return null;
+        }
+
+
+        const searchInput =
+            document.querySelector(
+                "#user-search"
+            );
+
+        const searchResults =
+            document.querySelector(
+                "#search-results"
+            );
+
+
+        searchInput.addEventListener(
+            "input",
+            async () => {
+                const query =
+                    searchInput.value.trim();
+
+                if (!query) {
+                    searchResults.innerHTML =
+                        "";
+
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        "{% url 'couples:user-autocomplete' %}?q="
+                        + encodeURIComponent(query),
+                        {
+                            credentials:
+                                "same-origin",
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error(
+                            "Ошибка поиска"
+                        );
+                    }
+
+                    const data =
+                        await response.json();
+
+                    searchResults.innerHTML =
+                        "";
+
+                    if (
+                        data.users.length === 0
+                    ) {
+                        searchResults.innerHTML =
+                            `
+                            <p class="search-empty">
+                                Пользователи не найдены.
+                            </p>
+                            `;
+
+                        return;
+                    }
+
+                    data.users.forEach((user) => {
+                        const item =
+                            document.createElement(
+                                "div"
+                            );
+
+                        item.className =
+                            "user-result";
+
+
+                        const userMain =
+                            document.createElement(
+                                "div"
+                            );
+
+                        userMain.className =
+                            "user-result-main";
+
+
+                        const userAvatar =
+                            document.createElement(
+                                "img"
+                            );
+
+                        userAvatar.className =
+                            "user-result-avatar";
+
+                        userAvatar.alt =
+                            `Фото ${user.display_name}`;
+
+                        userAvatar.src =
+                            user.avatar_url ||
+                            "/static/images/default-avatar.png";
+
+                        userAvatar.onerror =
+                            () => {
+                                userAvatar.src =
+                                    "/static/images/default-avatar.png";
+                            };
+                        
+                        userAvatar.style.setProperty(
+                            "display",
+                            "block",
+                            "important"
+                        );
+
+                        userAvatar.style.setProperty(
+                            "width",
+                            "52px",
+                            "important"
+                        );
+
+                        userAvatar.style.setProperty(
+                            "height",
+                            "52px",
+                            "important"
+                        );
+
+                        userAvatar.style.setProperty(
+                            "min-width",
+                            "52px",
+                            "important"
+                        );
+
+                        userAvatar.style.setProperty(
+                            "max-width",
+                            "52px",
+                            "important"
+                        );
+
+                        userAvatar.style.setProperty(
+                            "min-height",
+                            "52px",
+                            "important"
+                        );
+
+                        userAvatar.style.setProperty(
+                            "max-height",
+                            "52px",
+                            "important"
+                        );
+
+                        userAvatar.style.setProperty(
+                            "flex",
+                            "0 0 52px",
+                            "important"
+                        );
+
+                        userAvatar.style.setProperty(
+                            "border-radius",
+                            "50%",
+                            "important"
+                        );
+
+                        userAvatar.style.setProperty(
+                            "object-fit",
+                            "cover",
+                            "important"
+                        );
+
+                        userAvatar.style.setProperty(
+                            "object-position",
+                            "center",
+                            "important"
+                        );
+
+
+                        const userInfo =
+                            document.createElement(
+                                "div"
+                            );
+
+                        userInfo.className =
+                            "user-result-info";
+
+
+                        const userName =
+                            document.createElement(
+                                "strong"
+                            );
+
+                        userName.className =
+                            "user-result-name";
+
+                        userName.textContent =
+                            `${user.display_name} `
+                            + `(@${user.username})`;
+
+
+                        const partnerInfo =
+                            document.createElement(
+                                "small"
+                            );
+
+                        partnerInfo.className =
+                            "user-result-status";
+
+                        if (user.partner) {
+                            partnerInfo.textContent =
+                                `В паре с: `
+                                + `${user.partner.display_name} `
+                                + `(@${user.partner.username})`;
+                        } else {
+                            partnerInfo.textContent =
+                                "Сейчас без пары";
+                        }
+
+
+                        userInfo.append(
+                            userName,
+                            partnerInfo,
+                        );
+
+
+                        userMain.append(
+                            userAvatar,
+                            userInfo,
+                        );
+
+
+                        const inviteButton =
+                            document.createElement(
+                                "button"
+                            );
+
+                        inviteButton.type =
+                            "button";
+
+                        inviteButton.className =
+                            "button invite-button";
+
+                        inviteButton.textContent =
+                            "Пригласить";
+
+
+                        inviteButton.addEventListener(
+                            "click",
+                            async () => {
+                                inviteButton.disabled =
+                                    true;
+
+                                inviteButton.textContent =
+                                    "Отправка...";
+
+                                try {
+                                    const response =
+                                        await fetch(
+                                            `/couples/invite/${user.id}/`,
+                                            {
+                                                method:
+                                                    "POST",
+                                                credentials:
+                                                    "same-origin",
+                                                headers: {
+                                                    "X-CSRFToken":
+                                                        getCookie(
+                                                            "csrftoken"
+                                                        ),
+                                                    "Content-Type":
+                                                        "application/json",
+                                                },
+                                            }
+                                        );
+
+                                    if (
+                                        !response.ok
+                                    ) {
+                                        throw new Error(
+                                            "Ошибка отправки"
+                                        );
+                                    }
+
+                                    const result =
+                                        await response.json();
+
+                                    if (
+                                        result.success
+                                    ) {
+                                        inviteButton.textContent =
+                                            "Отправлено";
+
+                                        inviteButton.classList.add(
+                                            "is-sent"
+                                        );
+                                    } else {
+                                        inviteButton.disabled =
+                                            false;
+
+                                        inviteButton.textContent =
+                                            "Пригласить";
+
+                                        alert(
+                                            result.message
+                                        );
+                                    }
+                                } catch (error) {
+                                    inviteButton.disabled =
+                                        false;
+
+                                    inviteButton.textContent =
+                                        "Пригласить";
+
+                                    alert(
+                                        "Не удалось отправить приглашение."
+                                    );
+                                }
+                            }
+                        );
+
+
+                        item.append(
+                            userMain,
+                            inviteButton,
+                        );
+
+                        searchResults.appendChild(
+                            item
+                        );
+                    });
+                } catch (error) {
+                    searchResults.innerHTML =
+                        `
+                        <p class="search-error">
+                            Не удалось выполнить поиск.
+                        </p>
+                        `;
+                }
+            }
+        );
+    </script>
+
+
+    <form
+        style="display: none;"
+    >
+        {% csrf_token %}
+    </form>
+{% endblock body %}

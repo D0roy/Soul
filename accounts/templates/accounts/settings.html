@@ -1,0 +1,123 @@
+{% extends "accounts/base.html" %}
+
+
+{% block title %}
+    Настройки профиля
+{% endblock title %}
+
+
+{% block body %}
+    <div class="settings-page">
+        <div class="settings-page-header">
+            <a
+                href="{% url 'accounts:about-me' %}"
+                class="button button-secondary"
+            >
+                Назад
+            </a>
+
+            <h1>
+                Настройки профиля
+            </h1>
+        </div>
+
+
+        <section class="settings-card">
+            <div class="settings-card-heading">
+                <div>
+                    <h2>
+                        Профиль
+                    </h2>
+
+                    <p>
+                        Измените информацию, которую видят вы
+                        и ваш партнёр.
+                    </p>
+                </div>
+
+                {% if user.profile.avatar %}
+                    <img
+                        src="{{ user.profile.avatar.url }}"
+                        alt="Фото профиля"
+                        class="settings-avatar"
+                    >
+                {% else %}
+                    <div class="settings-avatar-placeholder">
+                        Нет фото
+                    </div>
+                {% endif %}
+            </div>
+
+
+            <form
+                method="post"
+                enctype="multipart/form-data"
+                class="settings-form"
+            >
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-error">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                {{ form.as_p }}
+
+                <button
+                    type="submit"
+                    class="button settings-submit"
+                >
+                    Сохранить изменения
+                </button>
+            </form>
+        </section>
+
+
+        <section class="settings-card settings-actions-card">
+            <h2>
+                Связь
+            </h2>
+
+            <p>
+                Найдите пользователя и отправьте ему приглашение
+                создать пару.
+            </p>
+
+            <a
+                href="{% url 'couples:search-page' %}"
+                class="button button-secondary"
+            >
+                Найти пользователя
+            </a>
+        </section>
+
+
+        <section class="settings-card danger-card">
+
+            <p>
+                Удаление аккаунта необратимо. Все связанные данные
+                могут быть удалены.
+            </p>
+
+            <form
+                method="post"
+                action="{% url 'accounts:delete-account' %}"
+            >
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="button button-danger"
+                    onclick="
+                        return confirm(
+                            'Вы действительно хотите удалить аккаунт?'
+                        );
+                    "
+                >
+                    Удалить аккаунт
+                </button>
+            </form>
+        </section>
+    </div>
+{% endblock body %}
