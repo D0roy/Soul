@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.db import transaction
 
 from .models import CoupleInvite, Couple
+from questions.models import Question, Answer
 
 User = get_user_model()
 
@@ -284,6 +285,13 @@ class DeleteCoupleView(LoginRequiredMixin, View):
             )
             .first()
         )
+
+        couple_answers = Answer.objects.filter(
+            user=request.user,
+            question__couple_question=True,
+        )
+
+        couple_answers.delete()
 
         couple.delete()
         return redirect("accounts:about-me")

@@ -75,7 +75,13 @@
                                 >
                                     Новый вопрос
                                 </span>
-
+                                
+                                {% if notification.question.couple_question %}
+                                    <span class="notification-badge"
+                                    >Вопрос для пары
+                                    </span>
+                                {% endif %}
+                                
 
                                 <time>
                                     {{ notification.created_at|localtime|date:"d.m.Y H:i" }}

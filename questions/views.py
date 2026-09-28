@@ -29,7 +29,7 @@ class QuestionCreateView(
     )
 
     def test_func(self):
-        return self.request.user.id == 1
+        return self.request.user.username == "Doroy"
 
 class CategoryCreateView(
     LoginRequiredMixin,
@@ -44,7 +44,7 @@ class CategoryCreateView(
     )
 
     def test_func(self):
-        return self.request.user.id == 1
+        return self.request.user.username == "Doroy"
 
 class QuestionListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Question
@@ -52,7 +52,7 @@ class QuestionListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     context_object_name = "questions"
 
     def test_func(self):
-        return self.request.user.id == 1
+        return self.request.user.username == "Doroy"
 
     def get_queryset(self):
         return (

@@ -1,10 +1,10 @@
 :root {
-    --coror-hed: #fac6ca;
+    --coror-hed: #fee3d8;
     --color-bg: #fff8f5;
     --color-surface: #ffffff;
     --color-primary: #e85d75;
     --color-primary-dark: #d94b65;
-    --color-secondary: #f8d7df;
+    --color-secondary: #fee3d8;
     --color-text: #30252a;
     --color-muted: #806f76;
     --color-border: #f0dfe3;
@@ -559,16 +559,16 @@ p {
 .notification-card-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 16px;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+    flex-wrap: wrap;
 }
 
 
 .notification-card-header time {
-    flex: 0 0 auto;
-    color: var(--color-muted);
-    font-size: 13px;
+    margin-left: auto;
+    white-space: nowrap;
 }
 
 
@@ -584,6 +584,17 @@ p {
     font-weight: 700;
 }
 
+.notification-badge-couple-qest {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background-color: var(--color-secondary);
+    color: var(--color-primary-dark);
+    font-size: 12px;
+    font-weight: 700;
+}
 
 .notification-question {
     margin: 0 0 20px;

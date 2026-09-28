@@ -137,7 +137,7 @@
                     Мои ответы
                 </h2>
 
-                {% if user.id == 1 %}
+                {% if user.username == "Doroy" %}
                     <a href="{% url 'questions:question-create' %}"class="delete-button partner-delete-button">Создать новый вопрос(только Админ)</a>
                 {% endif %}
             </div>
