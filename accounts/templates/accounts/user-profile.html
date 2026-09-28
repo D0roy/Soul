@@ -48,8 +48,8 @@
                     <div>
                         <dt>Дата рождения</dt>
                         <dd>
-                            {% if user.profile.birth_date %}
-                                {{ user.profile.birth_date|date:"d.m.Y" }}
+                            {% if profile_user.profile.birth_date %}
+                                {{ profile_user.profile.birth_date|date:"d.m.Y" }}
                             {% else %}
                                 Не указана
                             {% endif %}

@@ -1,0 +1,25 @@
+{
+  "name": "Soul",
+  "short_name": "Soul",
+  "description": "Приложение для общения и эмоциональной близости",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8eee8",
+  "theme_color": "#d99a91",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/images/icon_192_for_phone.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/images/icon_512_for_phone.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

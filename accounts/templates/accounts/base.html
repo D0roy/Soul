@@ -18,6 +18,28 @@
     </title>
 
     <link
+        rel="manifest"
+        href="{% static 'manifest.json' %}"
+    >
+
+    <link
+        rel="icon"
+        type="image/png"
+        sizes="192x192"
+        href="{% static 'images/icon_192_for_phone.png' %}"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="{% static 'images/icon_512_for_phone.png' %}"
+    >
+
+    <meta
+        name="theme-color"
+        content="#d99a91"
+    >
+
+    <link
         rel="stylesheet"
         href="{% static 'css/style.css' %}?v=5"
     >
@@ -33,7 +55,7 @@
                 aria-label="Soul"
             >
                 <img
-                    src="{% static 'images/icon.jpg' %}"
+                    src="{% static 'images/icon.png' %}"
                     alt="Soul"
                     class="brand-logo"
                 >
