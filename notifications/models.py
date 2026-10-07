@@ -32,10 +32,19 @@ class Notification(models.Model):
     )
     title = models.CharField(
         max_length=255,
+        blank=True,
+        default="",
     )
-    message = models.TextField()
+
+    message = models.TextField(
+        blank=True,
+        default="",
+    )
+
     url = models.CharField(
         max_length=500,
+        blank=True,
+        default="",
     )
     created_at = models.DateTimeField(
         auto_now_add=True,

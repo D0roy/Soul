@@ -14,7 +14,6 @@ from .views import (
     DeleteAccountView,
     NotificationsView,
     UserProfileView,
-    DeleteAvatarView,
     save_push_subscription,
     disable_push_notifications,
     service_worker,
