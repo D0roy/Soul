@@ -1,44 +1,174 @@
-{% extends 'accounts/base.html' %}
+{% extends "accounts/base.html" %}
 
 {% block title %}
-    Информация об аккаунте
+    Расскажите о себе
 {% endblock title %}
 
 {% block body %}
-    <h1>Расскажите о себе</h1>
+    <div class="bio-page">
+        <section class="bio-card">
+            <div class="bio-header">
+                <span class="bio-eyebrow">
+                    Профиль
+                </span>
 
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+                <h1 class="bio-title">
+                    Расскажите о себе
+                </h1>
 
-        {{ form.as_p }}
+                <p class="bio-subtitle">
+                    Заполните информацию, чтобы сделать
+                    ваш профиль более личным.
+                </p>
+            </div>
 
-        <button type="submit">
-            Сохранить
-        </button>
-    </form>
+            <form
+                method="post"
+                enctype="multipart/form-data"
+                class="bio-form"
+            >
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-error">
+                        {% for error in form.non_field_errors %}
+                            <p>
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="bio-field">
+                    {{ form.display_name.label_tag }}
+                    {{ form.display_name }}
+
+                    {% if form.display_name.help_text %}
+                        <small class="form-help">
+                            {{ form.display_name.help_text }}
+                        </small>
+                    {% endif %}
+
+                    {% for error in form.display_name.errors %}
+                        <p class="field-error">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+                </div>
+
+                <fieldset class="bio-field bio-gender">
+                    <legend class="bio-label">
+                        {{ form.gender.label }}
+                    </legend>
+
+                    <div class="gender-options">
+                        {% for radio in form.gender %}
+                            <label
+                                class="gender-option"
+                                for="{{ radio.id_for_label }}"
+                            >
+                                {{ radio.tag }}
+
+                                <span class="gender-radio"></span>
+
+                                <span class="gender-text">
+                                    {{ radio.choice_label }}
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    {% for error in form.gender.errors %}
+                        <p class="field-error">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+                </fieldset>
+
+                <div class="bio-field">
+                    {{ form.avatar.label_tag }}
+                    {{ form.avatar }}
+
+                    {% for error in form.avatar.errors %}
+                        <p class="field-error">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+                </div>
+
+                <div class="bio-field">
+                    {{ form.bio.label_tag }}
+                    {{ form.bio }}
+
+                    {% if form.bio.help_text %}
+                        <small class="form-help">
+                            {{ form.bio.help_text }}
+                        </small>
+                    {% endif %}
+
+                    {% for error in form.bio.errors %}
+                        <p class="field-error">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+                </div>
+
+                <div class="bio-grid">
+                    <div class="bio-field">
+                        {{ form.birth_date.label_tag }}
+                        {{ form.birth_date }}
+
+                        {% for error in form.birth_date.errors %}
+                            <p class="field-error">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="bio-field">
+                        {{ form.city.label_tag }}
+                        {{ form.city }}
+
+                        {% for error in form.city.errors %}
+                            <p class="field-error">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="bio-field">
+                    {{ form.zodiac_sign.label_tag }}
+                    {{ form.zodiac_sign }}
+
+                    {% for error in form.zodiac_sign.errors %}
+                        <p class="field-error">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+                </div>
+
+                {{ form.timezone }}
+
+                <button
+                    type="submit"
+                    class="button bio-submit"
+                >
+                    Сохранить профиль
+                </button>
+            </form>
+        </section>
+    </div>
 
     <script>
-        const timezone =
-            Intl.DateTimeFormat().resolvedOptions().timeZone;
-
         const timezoneInput =
-            document.querySelector("#id_timezone");
+            document.getElementById("id_timezone");
 
         if (timezoneInput) {
-            timezoneInput.value = timezone;
+            timezoneInput.value =
+                Intl.DateTimeFormat()
+                    .resolvedOptions()
+                    .timeZone;
         }
     </script>
-
 {% endblock body %}
-
-<script>
-    const timezoneInput =
-        document.getElementById("id_timezone");
-
-    if (timezoneInput) {
-        timezoneInput.value =
-            Intl.DateTimeFormat()
-                .resolvedOptions()
-                .timeZone;
-    }
-</script>

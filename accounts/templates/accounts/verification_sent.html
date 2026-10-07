@@ -1,0 +1,50 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+    Подтвердите почту
+{% endblock title %}
+
+{% block body %}
+    <main class="verification-page">
+        <section
+            class="verification-card"
+            aria-labelledby="verification-title"
+        >
+            <div
+                class="verification-icon"
+                aria-hidden="true"
+            >
+                ✉
+            </div>
+
+            <h1
+                id="verification-title"
+                class="verification-title"
+            >
+                Подтвердите почту
+            </h1>
+
+            <p class="verification-text">
+                Мы отправили письмо со ссылкой
+                для подтверждения регистрации.
+            </p>
+
+            <p class="verification-text">
+                Откройте письмо и перейдите по ссылке,
+                чтобы активировать аккаунт.
+            </p>
+
+            <p class="verification-hint">
+                Если письма нет, проверьте папку
+                «Спам» или «Промоакции».
+            </p>
+
+            <a
+                class="verification-button"
+                href="{% url 'accounts:login' %}"
+            >
+                Перейти ко входу
+            </a>
+        </section>
+    </main>
+{% endblock body %}

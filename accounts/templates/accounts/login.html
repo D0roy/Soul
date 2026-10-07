@@ -74,6 +74,17 @@
             >
                 Зарегистрироваться
             </a>
+
+            <p class="auth-footer">
+                Забыли пароль?
+
+                <a
+                    href="{% url 'accounts:password_reset' %}"
+                >
+                    Восстановить пароль
+                </a>
+            </p>
+
         </section>
     </div>
 {% endblock body %}

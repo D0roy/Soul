@@ -92,24 +92,26 @@
                             <p
                                 class="notification-question"
                             >
-                                {{ notification.question.text }}
+                                {{ notification.message }}
                             </p>
 
 
-                            <button
-                                type="button"
-                                class="button answer-question-button"
-                                data-question-id="{{ notification.question_id }}"
-                                data-answer-url="{% url 'questions:question' notification.question_id %}"
-                            >
-                                Ответить
-                            </button>
+                            {% if notification.question_id %}
+                                <button
+                                    type="button"
+                                    class="button answer-question-button"
+                                    data-question-id="{{ notification.question_id }}"
+                                    data-answer-url="{% url 'questions:question' notification.question_id %}"
+                                >
+                                    Ответить
+                                </button>
+                            {% endif %}
 
 
                             <template
                                 class="question-text-template"
                             >
-                                {{ notification.question.text }}
+                                {{ notification.message }}
                             </template>
                         </article>
                     {% endfor %}

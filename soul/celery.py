@@ -36,6 +36,15 @@ app.conf.update(
     broker_connection_retry_on_startup=True,
 )
 
+# app.conf.beat_schedule = {
+#     "send-questions-every-minute": {
+#         "task": (
+#             "questions.tasks."
+#             "send_scheduled_questions"
+#         ),
+#         "schedule": crontab(),
+#     },
+# }
 
 app.conf.beat_schedule = {
     "send-questions-at-moscow-time": {

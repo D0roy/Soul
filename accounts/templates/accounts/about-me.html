@@ -1,10 +1,42 @@
 {% extends 'accounts/base.html' %}
+{% load static %}
 
 {% block title %}
     Мой аккаунт
 {% endblock title %}
 
 {% block body %}
+
+    <section
+        id="site-updates"
+        class="site-updates"
+        aria-label="Обновления сайта"
+    >
+        <details class="site-updates__details">
+            <summary class="site-updates__summary">
+                <span>Последнее обновление</span>
+                <span class="site-updates__arrow" aria-hidden="true">⌄</span>
+            </summary>
+
+            <div class="site-updates__content">
+                <div
+                    id="site-update-content"
+                    class="site-updates__content-text"
+                >
+                    Загрузка обновления...
+                </div>
+
+                <button
+                    type="button"
+                    class="site-updates__hide"
+                    id="hide-site-updates"
+                >
+                    Скрыть
+                </button>
+            </div>
+        </details>
+    </section>
+
     <div class="account-page">
         <div class="account-header">
             <h1 class="account-title">
@@ -124,8 +156,9 @@
                     </div>
                 {% else %}
                     <p class="empty-text">
-                        Партнёр не найден. Вы можете привязать партнера в настройках.
+                        Партнёр не найден.
                     </p>
+                    <a href="{% url 'couples:search-page' %}" class="button">Найти партнера</a>
                 {% endif %}
             </div>
         </section>
@@ -279,5 +312,7 @@
             }
         );
     </script>
+
+    <script src="{% static 'js/site-updates.js' %}"></script>
 
 {% endblock body %}

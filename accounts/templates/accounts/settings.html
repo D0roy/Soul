@@ -1,10 +1,9 @@
 {% extends "accounts/base.html" %}
-
+{% load static %}
 
 {% block title %}
     Настройки профиля
 {% endblock title %}
-
 
 {% block body %}
     <div class="settings-page">
@@ -21,7 +20,6 @@
             </h1>
         </div>
 
-
         <section class="settings-card">
             <div class="settings-card-heading">
                 <div>
@@ -34,35 +32,162 @@
                         и ваш партнёр.
                     </p>
                 </div>
-
-                {% if user.profile.avatar %}
-                    <img
-                        src="{{ user.profile.avatar.url }}"
-                        alt="Фото профиля"
-                        class="settings-avatar"
-                    >
-                {% else %}
-                    <div class="settings-avatar-placeholder">
-                        Нет фото
-                    </div>
-                {% endif %}
             </div>
 
+            <script>
+                window.PUSH_PUBLIC_KEY =
+                    "{{ vapid_public_key|escapejs }}";
+            </script>
 
             <form
+                id="settings-form"
                 method="post"
                 enctype="multipart/form-data"
                 class="settings-form"
             >
                 {% csrf_token %}
 
+                <input
+                    type="hidden"
+                    name="timezone"
+                    id="id_timezone"
+                    value="{{ form.instance.timezone|default:'' }}"
+                >
+
                 {% if form.non_field_errors %}
                     <div class="form-error">
-                        {{ form.non_field_errors }}
+                        {% for error in form.non_field_errors %}
+                            <p>
+                                {{ error }}
+                            </p>
+                        {% endfor %}
                     </div>
                 {% endif %}
 
-                {{ form.as_p }}
+                {% if form.errors %}
+                    <div class="form-error">
+                        <p>
+                            Форма не сохранена. Исправьте ошибки:
+                        </p>
+
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+
+                <div class="avatar-editor">
+                    <div class="avatar-preview-frame">
+                        {% if user.profile.avatar %}
+                            <img
+                                id="avatar-preview"
+                                src="{{ user.profile.avatar.url }}"
+                                alt="Фото профиля"
+                                class="avatar-preview-image"
+                            >
+                        {% else %}
+                            <div
+                                id="avatar-preview-placeholder"
+                                class="avatar-preview-placeholder"
+                            >
+                                Нет фото
+                            </div>
+
+                            <img
+                                id="avatar-preview"
+                                src=""
+                                alt="Предпросмотр фото профиля"
+                                class="avatar-preview-image is-hidden"
+                            >
+                        {% endif %}
+                    </div>
+
+                    <div class="avatar-upload-control">
+                        {{ form.avatar.label_tag }}
+                        {{ form.avatar }}
+
+                        {% for error in form.avatar.errors %}
+                            <p class="field-error">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div
+                    id="avatar-crop-modal"
+                    class="avatar-crop-modal"
+                    aria-hidden="true"
+                >
+                    <div
+                        class="avatar-crop-dialog"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="avatar-crop-title"
+                    >
+                        <div class="avatar-crop-header">
+                            <h2 id="avatar-crop-title">
+                                Настройте фото
+                            </h2>
+
+                            <button
+                                type="button"
+                                id="avatar-crop-close"
+                                class="avatar-crop-close"
+                                aria-label="Закрыть"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div class="avatar-crop-area">
+                            <img
+                                id="avatar-crop-image"
+                                src=""
+                                alt="Кадрирование фото"
+                            >
+                        </div>
+
+                        <div class="avatar-crop-actions">
+                            <button
+                                type="button"
+                                id="avatar-crop-cancel"
+                                class="button button-secondary"
+                            >
+                                Отмена
+                            </button>
+
+                            <button
+                                type="button"
+                                id="avatar-crop-apply"
+                                class="button"
+                            >
+                                Использовать фото
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-fields">
+                    {% for field in form %}
+                        {% if field.name != "avatar" and field.name != "timezone" %}
+                            <div class="settings-field">
+                                {{ field.label_tag }}
+                                {{ field }}
+
+                                {% if field.help_text %}
+                                    <small class="form-help">
+                                        {{ field.help_text }}
+                                    </small>
+                                {% endif %}
+
+                                {% for error in field.errors %}
+                                    <p class="field-error">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
 
                 <button
                     type="submit"
@@ -72,7 +197,6 @@
                 </button>
             </form>
         </section>
-
 
         <section class="settings-card settings-actions-card">
             <h2>
@@ -92,9 +216,7 @@
             </a>
         </section>
 
-
         <section class="settings-card danger-card">
-
             <p>
                 Удаление аккаунта необратимо. Все связанные данные
                 могут быть удалены.
@@ -120,4 +242,392 @@
             </form>
         </section>
     </div>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"
+    ></script>
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+                const timezoneInput =
+                    document.getElementById(
+                        "id_timezone"
+                    );
+
+                if (timezoneInput) {
+                    const detectedTimezone =
+                        Intl.DateTimeFormat()
+                            .resolvedOptions()
+                            .timeZone;
+
+                    if (detectedTimezone) {
+                        timezoneInput.value =
+                            detectedTimezone;
+                    }
+                }
+
+                const form =
+                    document.getElementById(
+                        "settings-form"
+                    );
+
+                const input =
+                    document.getElementById(
+                        "id_avatar"
+                    );
+
+                const modal =
+                    document.getElementById(
+                        "avatar-crop-modal"
+                    );
+
+                const cropImage =
+                    document.getElementById(
+                        "avatar-crop-image"
+                    );
+
+                const preview =
+                    document.getElementById(
+                        "avatar-preview"
+                    );
+
+                const placeholder =
+                    document.getElementById(
+                        "avatar-preview-placeholder"
+                    );
+
+                const closeButton =
+                    document.getElementById(
+                        "avatar-crop-close"
+                    );
+
+                const cancelButton =
+                    document.getElementById(
+                        "avatar-crop-cancel"
+                    );
+
+                const applyButton =
+                    document.getElementById(
+                        "avatar-crop-apply"
+                    );
+
+                if (
+                    !form ||
+                    !input ||
+                    !modal ||
+                    !cropImage ||
+                    !preview ||
+                    !closeButton ||
+                    !cancelButton ||
+                    !applyButton ||
+                    !window.Cropper
+                ) {
+                    return;
+                }
+
+                let cropper = null;
+                let selectedFile = null;
+                let sourceUrl = null;
+                let previewUrl = null;
+
+                const openModal = () => {
+                    modal.classList.add(
+                        "is-open"
+                    );
+
+                    modal.setAttribute(
+                        "aria-hidden",
+                        "false"
+                    );
+                };
+
+                const closeModal = () => {
+                    modal.classList.remove(
+                        "is-open"
+                    );
+
+                    modal.setAttribute(
+                        "aria-hidden",
+                        "true"
+                    );
+
+                    if (cropper) {
+                        cropper.destroy();
+                        cropper = null;
+                    }
+
+                    if (sourceUrl) {
+                        URL.revokeObjectURL(
+                            sourceUrl
+                        );
+
+                        sourceUrl = null;
+                    }
+
+                    cropImage.removeAttribute(
+                        "src"
+                    );
+                };
+
+                input.addEventListener(
+                    "change",
+                    () => {
+                        const file = input.files[0];
+
+                        if (!file) {
+                            return;
+                        }
+
+                        if (
+                            !file.type.startsWith(
+                                "image/"
+                            )
+                        ) {
+                            input.value = "";
+
+                            alert(
+                                "Выберите файл изображения."
+                            );
+
+                            return;
+                        }
+
+                        selectedFile = file;
+
+                        if (sourceUrl) {
+                            URL.revokeObjectURL(
+                                sourceUrl
+                            );
+                        }
+
+                        sourceUrl =
+                            URL.createObjectURL(
+                                selectedFile
+                            );
+
+                        cropImage.onload = () => {
+                            openModal();
+
+                            if (cropper) {
+                                cropper.destroy();
+                            }
+
+                            cropper = new Cropper(
+                                cropImage,
+                                {
+                                    aspectRatio: 1,
+                                    viewMode: 1,
+                                    dragMode: "move",
+                                    autoCropArea: 0.9,
+                                    responsive: true,
+                                    restore: false,
+                                    guides: true,
+                                    center: true,
+                                    highlight: false,
+                                    background: false,
+                                    movable: true,
+                                    zoomable: true,
+                                    zoomOnWheel: true,
+                                    rotatable: false,
+                                    scalable: false,
+                                }
+                            );
+                        };
+
+                        cropImage.src = sourceUrl;
+                    }
+                );
+
+                applyButton.addEventListener(
+                    "click",
+                    () => {
+                        if (
+                            !cropper ||
+                            !selectedFile
+                        ) {
+                            return;
+                        }
+
+                        const canvas =
+                            cropper.getCroppedCanvas(
+                                {
+                                    width: 600,
+                                    height: 600,
+                                    imageSmoothingEnabled:
+                                        true,
+                                    imageSmoothingQuality:
+                                        "high",
+                                }
+                            );
+
+                        canvas.toBlob(
+                            (blob) => {
+                                if (!blob) {
+                                    alert(
+                                        "Не удалось обработать фото."
+                                    );
+
+                                    return;
+                                }
+
+                                const croppedFile =
+                                    new File(
+                                        [
+                                            blob,
+                                        ],
+                                        "avatar.jpg",
+                                        {
+                                            type:
+                                                "image/jpeg",
+                                            lastModified:
+                                                Date.now(),
+                                        }
+                                    );
+
+                                const dataTransfer =
+                                    new DataTransfer();
+
+                                dataTransfer.items.add(
+                                    croppedFile
+                                );
+
+                                input.files =
+                                    dataTransfer.files;
+
+                                if (previewUrl) {
+                                    URL.revokeObjectURL(
+                                        previewUrl
+                                    );
+                                }
+
+                                previewUrl =
+                                    URL.createObjectURL(
+                                        blob
+                                    );
+
+                                preview.src =
+                                    previewUrl;
+
+                                preview.classList.remove(
+                                    "is-hidden"
+                                );
+
+                                if (placeholder) {
+                                    placeholder.classList.add(
+                                        "is-hidden"
+                                    );
+                                }
+
+                                closeModal();
+                            },
+                            "image/jpeg",
+                            0.9
+                        );
+                    }
+                );
+
+                closeButton.addEventListener(
+                    "click",
+                    () => {
+                        input.value = "";
+                        closeModal();
+                    }
+                );
+
+                cancelButton.addEventListener(
+                    "click",
+                    () => {
+                        input.value = "";
+                        closeModal();
+                    }
+                );
+
+                modal.addEventListener(
+                    "click",
+                    (event) => {
+                        if (
+                            event.target === modal
+                        ) {
+                            input.value = "";
+                            closeModal();
+                        }
+                    }
+                );
+
+                document.addEventListener(
+                    "keydown",
+                    (event) => {
+                        if (
+                            event.key === "Escape" &&
+                            modal.classList.contains(
+                                "is-open"
+                            )
+                        ) {
+                            input.value = "";
+                            closeModal();
+                        }
+                    }
+                );
+
+                window.addEventListener(
+                    "beforeunload",
+                    () => {
+                        if (sourceUrl) {
+                            URL.revokeObjectURL(
+                                sourceUrl
+                            );
+                        }
+
+                        if (previewUrl) {
+                            URL.revokeObjectURL(
+                                previewUrl
+                            );
+                        }
+                    }
+                );
+            }
+        );
+    </script>
+
+    <script
+        src="{% static 'js/push-notifications.js' %}"
+        defer
+    ></script>
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+                const checkbox =
+                    document.querySelector(
+                        ".notifications-checkbox"
+                    );
+
+                if (!checkbox) {
+                    return;
+                }
+
+                checkbox.addEventListener(
+                    "change",
+                    async () => {
+                        try {
+                            if (checkbox.checked) {
+                                await enablePushNotifications();
+                            } else {
+                                await disablePushNotifications();
+                            }
+                        } catch (error) {
+                            checkbox.checked = false;
+
+                            alert(error.message);
+
+                            console.error(error);
+                        }
+                    }
+                );
+            }
+        );
+    </script>
 {% endblock body %}

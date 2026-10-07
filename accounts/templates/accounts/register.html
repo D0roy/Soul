@@ -33,24 +33,64 @@
                 {% endif %}
 
                 {% for field in form %}
-                    <div class="auth-field">
-                        {{ field.label_tag }}
+                    {% if field.name != "personal_data_consent" and field.name != "terms_consent" %}
+                        <div class="auth-field">
+                            {{ field.label_tag }}
 
-                        {{ field }}
+                            {{ field }}
 
-                        {% if field.help_text %}
-                            <small class="form-help">
-                                {{ field.help_text }}
-                            </small>
-                        {% endif %}
+                            {% if field.help_text %}
+                                <small class="form-help">
+                                    {{ field.help_text }}
+                                </small>
+                            {% endif %}
 
-                        {% for error in field.errors %}
-                            <p class="field-error">
-                                {{ error }}
-                            </p>
-                        {% endfor %}
-                    </div>
+                            {% for error in field.errors %}
+                                <p class="field-error">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 {% endfor %}
+
+                <div class="consent-field">
+                    {{ form.personal_data_consent }}
+
+                    <label
+                        for="{{ form.personal_data_consent.id_for_label }}"
+                    >
+                        Я согласен на
+                        <a
+                            href="{% url 'legal:consent' %}"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            обработку персональных данных
+                        </a>
+                    </label>
+                </div>
+
+                {{ form.personal_data_consent.errors }}
+
+                <div class="consent-field">
+                    {{ form.terms_consent }}
+
+                    <label
+                        for="{{ form.terms_consent.id_for_label }}"
+                    >
+                        Я принимаю
+                        <a
+                            href="{% url 'legal:terms' %}"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            Пользовательское соглашение
+                        </a>.
+                    </label>
+                </div>
+
+                {{ form.terms_consent.errors }}
 
                 <button
                     type="submit"

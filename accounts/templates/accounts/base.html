@@ -41,9 +41,25 @@
 
     <link
         rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css"
+    >
+
+    <link
+        rel="stylesheet"
         href="{% static 'css/style.css' %}?v=2"
     >
 </head>
+
 
 
 <body>
@@ -123,5 +139,66 @@
         {% block body %}
         {% endblock body %}
     </main>
+
+    <footer class="site-footer">
+        <nav
+            class="site-footer__legal"
+            aria-label="Правовая информация"
+        >
+            <a href="{% url 'legal:privacy' %}">
+                Политика обработки персональных данных
+            </a>
+
+            <a href="{% url 'legal:consent' %}">
+                Согласие на обработку данных
+            </a>
+
+            <a href="{% url 'legal:offer' %}">
+                Публичная оферта
+            </a>
+
+            <a href="{% url 'legal:terms' %}">
+                Пользовательское соглашение
+            </a>
+        </nav>
+    </footer>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/flatpickr"
+    ></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"
+    ></script>
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+                const birthDateInput =
+                    document.querySelector(
+                        ".birth-date-input"
+                    );
+
+                if (birthDateInput) {
+                    flatpickr(
+                        birthDateInput,
+                        {
+                            locale: "ru",
+                            dateFormat: "d.m.Y",
+                            allowInput: true,
+                            disableMobile: true,
+                            maxDate: "today",
+                            yearSelectorType: "dropdown",
+                        }
+                    );
+                }
+            }
+        );
+    </script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"
+    ></script>
 </body>
 </html>

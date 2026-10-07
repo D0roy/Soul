@@ -28,6 +28,9 @@ staticfiles/
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+*.crt
 
 # IDE
 .vscode/

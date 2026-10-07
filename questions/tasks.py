@@ -6,6 +6,7 @@ from django.utils import timezone
 from couples.models import Couple
 from notifications.models import Notification
 from questions.models import Answer, Question
+from notifications.services import create_notification
 
 
 User = get_user_model()
@@ -56,8 +57,12 @@ def send_scheduled_questions():
         if question is None:
             continue
 
-        Notification.objects.create(
+        create_notification(
             user=user,
+            notification_type=Notification.TYPE_QUESTION,
+            title="Новый вопрос",
+            message=question.text,
+            url=f"/accounts/notifications/",
             question=question,
         )
 

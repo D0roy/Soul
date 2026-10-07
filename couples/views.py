@@ -9,9 +9,10 @@ from django.db import transaction
 
 from .models import CoupleInvite, Couple
 from questions.models import Question, Answer
+from notifications.models import Notification
+from notifications.services import create_notification
 
 User = get_user_model()
-
 
 class UserSearchPageView(LoginRequiredMixin, TemplateView):
     template_name = "couples/search_user.html"
@@ -146,6 +147,17 @@ class SendInviteView(LoginRequiredMixin, View):
         )
 
         if created:
+            create_notification(
+                user=invite.recipient,
+                notification_type=Notification.TYPE_INVITE,
+                title="Приглашение в пару",
+                message=(
+                    f"{invite.sender.username} "
+                    "отправил вам приглашение в пару."
+                ),
+                url="/accounts/notifications/",
+            )
+
             message = "Приглашение отправлено."
         else:
             message = "Приглашение уже отправлялось."
