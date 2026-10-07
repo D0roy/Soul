@@ -76,7 +76,7 @@
                                     Новый вопрос
                                 </span>
                                 
-                                {% if notification.question.couple_question %}
+                                {% if notification.question and notification.question.couple_question %}
                                     <span class="notification-badge"
                                     >Вопрос для пары
                                     </span>
@@ -92,7 +92,13 @@
                             <p
                                 class="notification-question"
                             >
-                                {{ notification.message }}
+                                {% if notification.question %}
+                                    {{ notification.question.text }}
+                                {% elif notification.message %}
+                                    {{ notification.message }}
+                                {% else %}
+                                    Вам пришёл новый вопрос.
+                                {% endif %}
                             </p>
 
 
@@ -111,7 +117,13 @@
                             <template
                                 class="question-text-template"
                             >
-                                {{ notification.message }}
+                                {% if notification.question %}
+                                    {{ notification.question.text }}
+                                {% elif notification.message %}
+                                    {{ notification.message }}
+                                {% else %}
+                                    Вам пришёл новый вопрос.
+                                {% endif %}
                             </template>
                         </article>
                     {% endfor %}
